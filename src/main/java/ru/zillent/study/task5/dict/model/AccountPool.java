@@ -1,9 +1,6 @@
 package ru.zillent.study.task5.dict.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "tpp_ref_account_type")
