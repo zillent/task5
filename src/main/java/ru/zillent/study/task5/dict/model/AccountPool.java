@@ -3,7 +3,7 @@ package ru.zillent.study.task5.dict.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "tpp_ref_account_type")
+@Table(name = "account_pool")
 public class AccountPool {
     @Id
     @Column(name = "id")
