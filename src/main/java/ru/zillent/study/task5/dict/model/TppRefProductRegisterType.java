@@ -12,7 +12,7 @@ import java.util.Date;
 public class TppRefProductRegisterType {
     @Id
     @Column(name = "internal_id")
-    private int id;
+    private Long id;
     @Column(name="register_type_name")
     private String registerTypeName;
     @Column(name = "product_class_code")

@@ -10,7 +10,7 @@ import org.springframework.data.annotation.Id;
 public class AccountPool {
     @Id
     @Column(name = "id")
-    private int id;
+    private Long id;
     @Column(name = "branch_code")
     private String branchCode;
     @Column(name = "currency_code")

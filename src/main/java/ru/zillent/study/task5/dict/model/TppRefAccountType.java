@@ -10,7 +10,7 @@ import org.springframework.data.annotation.Id;
 public class TppRefAccountType {
     @Id
     @Column(name = "internal_id")
-    private int id;
+    private Long id;
     @Column(name = "value")
     private String value;
 }
