@@ -1,6 +1,6 @@
 package ru.zillent.study.task5;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +14,7 @@ import ru.zillent.study.task5.dict.model.*;
 
 import java.util.List;
 
-@SpringBootTest
-@RunWith(SpringRunner.class)
-@Testcontainers
-public class DictModelTests {
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
-            "postgres:15-alpine"
-    ).withCopyFileToContainer(
-            MountableFile.forHostPath("../db/schema.sql"),
-            "/docker-entrypoint-initdb.d/"
-    );
+public class DictModelTests extends SpringContextApplicationTest{
 
     @Autowired
     TppRefProductClassRepository tppRefProductClassRepository;
