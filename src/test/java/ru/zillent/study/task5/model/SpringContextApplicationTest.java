@@ -1,4 +1,4 @@
-package ru.zillent.study.task5;
+package ru.zillent.study.task5.model;
 
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
