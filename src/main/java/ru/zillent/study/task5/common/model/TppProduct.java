@@ -9,6 +9,8 @@ import java.util.Date;
 @Table(name = "tpp_product")
 public class TppProduct {
     @Id
+    @SequenceGenerator(name = "tpp_product_seq", sequenceName = "tpp_product_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tpp_product_seq")
     @Column(name = "id")
     private Long id;
 //--	agreement_id BIGINT,

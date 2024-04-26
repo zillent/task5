@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 @Table(name = "tpp_product_register")
 public class TppProductRegister {
     @Id
+    @SequenceGenerator(name = "tpp_product_register_seq", sequenceName = "tpp_product_register_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tpp_product_register_seq")
     @Column(name = "id")
     private Long id;
     @Column(name = "product_id")
@@ -20,4 +22,13 @@ public class TppProductRegister {
     private String state;
     @Column(name = "account_number")
     private String accountNumber;
+
+    public TppProductRegister(Long productId, String type, Long account, String currencyCode, String state, String accountNumber) {
+        this.productId = productId;
+        this.type = type;
+        this.account = account;
+        this.currencyCode = currencyCode;
+        this.state = state;
+        this.accountNumber = accountNumber;
+    }
 }
