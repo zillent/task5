@@ -2,6 +2,7 @@ package ru.zillent.study.task5.dict.model;
 
 import jakarta.persistence.*;
 
+import javax.lang.model.element.Name;
 import java.util.Date;
 
 @Entity
@@ -10,6 +11,8 @@ public class TppRefProductRegisterType {
     @Id
     @Column(name = "internal_id")
     private Long id;
+    @Column(name = "value")
+    String value;
     @Column(name="register_type_name")
     private String registerTypeName;
     @Column(name = "product_class_code")
