@@ -9,25 +9,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
+import ru.zillent.study.task5.common.model.Account;
+import ru.zillent.study.task5.common.model.AccountRepository;
 import ru.zillent.study.task5.common.model.TppProductRegister;
 import ru.zillent.study.task5.common.model.TppProductRegisterRepository;
+import ru.zillent.study.task5.dict.model.AccountPool;
+import ru.zillent.study.task5.dict.model.AccountPoolRepository;
+import ru.zillent.study.task5.dict.model.TppRefProductRegisterType;
 import ru.zillent.study.task5.dict.model.TppRefProductRegisterTypeRepository;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CorporateSettlementAccountServiceTests{
+public class CorporateSettlementAccountServiceTests {
     private Integer instanceId = 23;
     private String registryTypeCode = "22";
     private String accountType = "11";
@@ -42,12 +51,6 @@ public class CorporateSettlementAccountServiceTests{
 
     @Autowired
     CorporateSettlementAccountService accountService;
-
-    @MockBean
-    TppProductRegisterRepository tppProductRegisterRepository;
-
-    @MockBean
-    TppRefProductRegisterTypeRepository tppRefProductRegisterTypeRepository;
 
     // Step 1
     @Test
@@ -66,26 +69,30 @@ public class CorporateSettlementAccountServiceTests{
                 salesCode
         );
         Field[] fields = account.getClass().getDeclaredFields();
-        for (Field f: fields) {
-            String capitalizeFieldName = f.getName().substring(0,1).toUpperCase()+f.getName().substring(1);
-            Method getter = account.getClass().getDeclaredMethod("get"+capitalizeFieldName);
+        for (Field f : fields) {
+            String capitalizeFieldName = f.getName().substring(0, 1).toUpperCase() + f.getName().substring(1);
+            Method getter = account.getClass().getDeclaredMethod("get" + capitalizeFieldName);
             Method setter = null;
             if (f.getName().equals("instanceId")) {
-                setter = account.getClass().getDeclaredMethod("set"+capitalizeFieldName, Integer.class);
+                setter = account.getClass().getDeclaredMethod("set" + capitalizeFieldName, Integer.class);
             } else {
-                setter = account.getClass().getDeclaredMethod("set"+capitalizeFieldName, String.class);
+                setter = account.getClass().getDeclaredMethod("set" + capitalizeFieldName, String.class);
             }
             Object oldValue = getter.invoke(account);
             setter.invoke(account, (Object) null);
             ResponseEntity<String> response = accountService.createAccount(account);
             Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-            Assertions.assertEquals("Имя обязательного параметра "+f.getName()+" не заполнено.", response.getBody());
+            Assertions.assertEquals("Имя обязательного параметра " + f.getName() + " не заполнено.", response.getBody());
             setter.invoke(account, oldValue);
         }
         ResponseEntity<String> response = accountService.createAccount(null);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals("Имя обязательного параметра  не заполнено.", response.getBody());
     }
+
+
+    @MockBean
+    TppProductRegisterRepository tppProductRegisterRepository;
 
     // Step 2
     @Test
@@ -95,7 +102,7 @@ public class CorporateSettlementAccountServiceTests{
                 registryTypeCode,
                 100L,
                 currencyCode,
-                "2",
+                "OPEN",
                 "377449"
         );
         CorporateSettlementAccountDTO account = new CorporateSettlementAccountDTO(
@@ -129,6 +136,9 @@ public class CorporateSettlementAccountServiceTests{
         );
     }
 
+    @MockBean
+    TppRefProductRegisterTypeRepository tppRefProductRegisterTypeRepository;
+
     // Step 3
     @Test
     public void accountCreateNotFoundRegisterTypeCodeTest() throws JsonProcessingException {
@@ -154,29 +164,73 @@ public class CorporateSettlementAccountServiceTests{
         );
     }
 
+    @MockBean
+    AccountPoolRepository accountPoolRepository;
+
+    @MockBean
+    AccountRepository accountRepository;
+
     //Step 4
-    //TODO: Step 4 All Ok
+    @Test
     public void accountCreateAllOkTest() throws JsonProcessingException {
-//        CorporateSettlementAccountDTO account = new CorporateSettlementAccountDTO(
-//                instanceId,
-//                registryTypeCode,
-//                accountType,
-//                currencyCode,
-//                branchCode,
-//                priorityCode,
-//                mdmCode,
-//                clientCode,
-//                trainRegion,
-//                counter,
-//                salesCode
-//        );
-//        doReturn(List.of()).when(tppRefProductRegisterTypeRepository).findByValue(any());
-//        ResponseEntity<String> response = accountService.createAccount(account);
-//        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        Assertions.assertEquals(
-//                "Код Продукта %s не найдено в Каталоге продуктов public.tpp_ref_product_register_type для данного типа Регистра".formatted(registryTypeCode),
-//                response.getBody()
-//        );
+        CorporateSettlementAccountDTO requestBodyDTO = new CorporateSettlementAccountDTO(
+                instanceId,
+                registryTypeCode,
+                accountType,
+                currencyCode,
+                branchCode,
+                priorityCode,
+                mdmCode,
+                clientCode,
+                trainRegion,
+                counter,
+                salesCode
+        );
+        AccountPool accountPool = new AccountPool(
+                requestBodyDTO.getBranchCode(),
+                requestBodyDTO.getCurrencyCode(),
+                requestBodyDTO.getMdmCode(),
+                requestBodyDTO.getPriorityCode(),
+                requestBodyDTO.getRegistryTypeCode()
+        );
+        Account account = new Account();
+        account.setId(23L);
+        account.setAccountNumber("333");
+        TppProductRegister tppProductRegister = new TppProductRegister(
+                Long.valueOf(requestBodyDTO.getInstanceId()),
+                requestBodyDTO.getRegistryTypeCode(),
+                account.getId(),
+                requestBodyDTO.getCurrencyCode(),
+                "OPEN",
+                account.getAccountNumber()
+        );
+        doReturn(List.of(new TppRefProductRegisterType())).when(tppRefProductRegisterTypeRepository).findByValue(any());
+
+        // when not found Account pool
+        doReturn(Optional.empty()).when(accountPoolRepository).findOne(any());
+        // then
+        ResponseEntity<String> response = accountService.createAccount(requestBodyDTO);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertEquals("Не найден подходящий пул счетов", response.getBody());
+
+        doReturn(Optional.of(accountPool)).when(accountPoolRepository).findOne(any());
+
+        // when not found any accounts in pool
+        doReturn(Optional.empty()).when(accountRepository).findAnyByAccountPoolId(any());
+        // then
+        response = accountService.createAccount(requestBodyDTO);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertEquals("Не найдены счета в пуле счетов", response.getBody());
+
+        doReturn(Optional.of(account)).when(accountRepository).findAnyByAccountPoolId(any());
+        doReturn(tppProductRegister).when(tppProductRegisterRepository).save(any());
+        // when everything is ok
+        tppProductRegister.setId(33L);
+        response = accountService.createAccount(requestBodyDTO);
+        // then
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals("{\"data\":{\"accountId\":\"33\"}}", response.getBody());
+        verify(tppProductRegisterRepository).save(any());
     }
 
 }
