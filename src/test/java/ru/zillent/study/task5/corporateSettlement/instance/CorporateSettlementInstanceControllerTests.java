@@ -47,14 +47,14 @@ public class CorporateSettlementInstanceControllerTests {
         CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO();
         CorporateSettlementInstanceResponseDTO responseDTO = new CorporateSettlementInstanceResponseDTO(new DataRecord("34", List.of(), List.of()));
         ObjectMapper objectMapper = new ObjectMapper();
-        doReturn(new ResponseEntity<>(objectMapper.writeValueAsString(responseDTO), HttpStatus.OK)).when(corporateSettlementInstanceService).createInstance(requestBodyDTO);
+        doReturn(new ResponseEntity<>(responseDTO, HttpStatus.OK)).when(corporateSettlementInstanceService).createInstance(requestBodyDTO);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/corporate-settlement-instance/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(requestBodyDTO)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.accountId").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.instanceId").exists())
                 .andReturn();
-        Assertions.assertEquals("{\"data\":{\"accountId\":\"34\"}}",mvcResult.getResponse().getContentAsString());
+        Assertions.assertEquals("{\"data\":{\"instanceId\":\"34\",\"registerId\":[],\"supplementaryAgreementId\":[]}}",mvcResult.getResponse().getContentAsString());
     }
 }
