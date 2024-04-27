@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.zillent.study.task5.dict.model.*;
 import java.util.List;
 
-public class DictModelTests extends SpringContextApplicationTest{
+public class DictModelTests extends DictContainerTest {
 
     @Autowired
     TppRefProductClassRepository tppRefProductClassRepository;

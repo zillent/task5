@@ -13,7 +13,7 @@ import org.testcontainers.utility.MountableFile;
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class SpringContextApplicationTest {
+public class DictContainerTest {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(

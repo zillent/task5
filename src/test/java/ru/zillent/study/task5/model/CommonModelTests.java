@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.zillent.study.task5.common.model.*;
 import java.util.List;
 
-public class CommonModelTests extends SpringContextApplicationTest {
+public class CommonModelTests extends CommonContainerTest {
 
     @Autowired
     AccountRepository accountRepository;
