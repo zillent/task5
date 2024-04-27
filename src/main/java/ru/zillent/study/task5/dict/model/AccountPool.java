@@ -2,12 +2,14 @@ package ru.zillent.study.task5.dict.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "account_pool")
 @Getter
 @Setter
+@NoArgsConstructor
 public class AccountPool {
     @Id
     @Column(name = "id")
