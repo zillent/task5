@@ -1,9 +1,13 @@
 package ru.zillent.study.task5.common.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tpp_product_register")
+@Getter
+@Setter
 public class TppProductRegister {
     @Id
     @SequenceGenerator(name = "tpp_product_register_seq", sequenceName = "tpp_product_register_id_seq", allocationSize = 1)

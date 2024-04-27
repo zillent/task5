@@ -1,9 +1,13 @@
 package ru.zillent.study.task5.common.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "account")
+@Getter
+@Setter
 public class Account {
     @Id
     @SequenceGenerator(name = "account_seq", sequenceName = "account_id_seq", allocationSize = 1)
@@ -16,6 +20,5 @@ public class Account {
     private String accountNumber;
     @Column(name = "bussy")
     private Boolean bussy;
-
 
 }
