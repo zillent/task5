@@ -14,22 +14,21 @@ public class CorporateSettlementInstanceController {
     CorporateSettlementInstanceService instanceService;
 
     @PostMapping("/create")
-    public ResponseEntity<CorporateSettlementInstanceResponseDTO> createInstance(@RequestBody CorporateSettlementInstanceDTO instanceDTO) throws JsonProcessingException {
+    public ResponseEntity<CorporateSettlementInstanceResponseDTO> createInstance(@RequestBody CorporateSettlementInstanceDTO instanceDTO) throws JsonProcessingException, CorporateSettlementInstanceRequiredFieldsAbsentException, CorporateSettlementInstanceNotFoundException {
         return instanceService.createInstance(instanceDTO);
     }
 
-    @Getter
-    private class CorporateSettlementInstanceControllerException extends Throwable {
-        private final String message;
-        public CorporateSettlementInstanceControllerException(Exception e) {
-            this.message = e.getMessage();
-        }
-    }
-
-    @ExceptionHandler(CorporateSettlementInstanceController.CorporateSettlementInstanceControllerException.class)
+    @ExceptionHandler(CorporateSettlementInstanceRequiredFieldsAbsentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody String handleException(
-            CorporateSettlementInstanceController.CorporateSettlementInstanceControllerException e
+            CorporateSettlementInstanceRequiredFieldsAbsentException e
+    ) {
+        return e.getMessage();
+    }
+    @ExceptionHandler(CorporateSettlementInstanceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public @ResponseBody String handleException(
+            CorporateSettlementInstanceNotFoundException e
     ) {
         return e.getMessage();
     }

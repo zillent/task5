@@ -19,12 +19,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class CorporateSettlementInstanceControllerTests {
+public class CorporateSettlementInstanceControllerTest {
     @Autowired
     MockMvc mockMvc;
     @MockBean
@@ -43,7 +45,7 @@ public class CorporateSettlementInstanceControllerTests {
     private String salesCode = "";
 
     @Test
-    public void postCreateTest() throws Exception {
+    public void postCreateSuccessTest() throws Exception, CorporateSettlementInstanceRequiredFieldsAbsentException, CorporateSettlementInstanceNotFoundException {
         CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO();
         CorporateSettlementInstanceResponseDTO responseDTO = new CorporateSettlementInstanceResponseDTO(new DataRecord("34", List.of(), List.of()));
         ObjectMapper objectMapper = new ObjectMapper();
@@ -56,5 +58,37 @@ public class CorporateSettlementInstanceControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.instanceId").exists())
                 .andReturn();
         Assertions.assertEquals("{\"data\":{\"instanceId\":\"34\",\"registerId\":[],\"supplementaryAgreementId\":[]}}",mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void postCreateRequiredFieldsAbsentExceptionTest() throws Exception, CorporateSettlementInstanceRequiredFieldsAbsentException, CorporateSettlementInstanceNotFoundException {
+        CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO();
+        CorporateSettlementInstanceResponseDTO responseDTO = new CorporateSettlementInstanceResponseDTO(new DataRecord("34", List.of(), List.of()));
+        ObjectMapper objectMapper = new ObjectMapper();
+        when(corporateSettlementInstanceService.createInstance(any())).thenThrow(
+                new CorporateSettlementInstanceRequiredFieldsAbsentException("TEST REQUIRED FIELDS EXCEPTION MSG")
+        );
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/corporate-settlement-instance/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(requestBodyDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+        Assertions.assertEquals("TEST REQUIRED FIELDS EXCEPTION MSG", mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void postCreateNotFoundExceptionTest() throws Exception, CorporateSettlementInstanceRequiredFieldsAbsentException, CorporateSettlementInstanceNotFoundException {
+        CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO();
+        CorporateSettlementInstanceResponseDTO responseDTO = new CorporateSettlementInstanceResponseDTO(new DataRecord("34", List.of(), List.of()));
+        ObjectMapper objectMapper = new ObjectMapper();
+        when(corporateSettlementInstanceService.createInstance(any())).thenThrow(
+                new CorporateSettlementInstanceNotFoundException("TEST NOT FOUND EXCEPTION MSG")
+        );
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/corporate-settlement-instance/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(requestBodyDTO)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andReturn();
+        Assertions.assertEquals("TEST NOT FOUND EXCEPTION MSG", mvcResult.getResponse().getContentAsString());
     }
 }
