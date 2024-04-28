@@ -1,7 +1,6 @@
 package ru.zillent.study.task5.corporateSettlement.instance;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +13,14 @@ public class CorporateSettlementInstanceController {
     CorporateSettlementInstanceService instanceService;
 
     @PostMapping("/create")
-    public ResponseEntity<CorporateSettlementInstanceResponseDTO> createInstance(@RequestBody CorporateSettlementInstanceDTO instanceDTO) throws JsonProcessingException, CorporateSettlementInstanceRequiredFieldsAbsentException, CorporateSettlementInstanceNotFoundException {
+    public ResponseEntity<CorporateSettlementInstanceResponseDTO> createInstance(@RequestBody CorporateSettlementInstanceDTO instanceDTO) throws JsonProcessingException, CorporateSettlementInstanceBadRequestException, CorporateSettlementInstanceNotFoundException {
         return instanceService.createInstance(instanceDTO);
     }
 
-    @ExceptionHandler(CorporateSettlementInstanceRequiredFieldsAbsentException.class)
+    @ExceptionHandler(CorporateSettlementInstanceBadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody String handleException(
-            CorporateSettlementInstanceRequiredFieldsAbsentException e
+            CorporateSettlementInstanceBadRequestException e
     ) {
         return e.getMessage();
     }

@@ -45,7 +45,7 @@ public class CorporateSettlementInstanceControllerTest {
     private String salesCode = "";
 
     @Test
-    public void postCreateSuccessTest() throws Exception, CorporateSettlementInstanceRequiredFieldsAbsentException, CorporateSettlementInstanceNotFoundException {
+    public void postCreateSuccessTest() throws Exception, CorporateSettlementInstanceBadRequestException, CorporateSettlementInstanceNotFoundException {
         CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO();
         CorporateSettlementInstanceResponseDTO responseDTO = new CorporateSettlementInstanceResponseDTO(new DataRecord("34", List.of(), List.of()));
         ObjectMapper objectMapper = new ObjectMapper();
@@ -61,12 +61,12 @@ public class CorporateSettlementInstanceControllerTest {
     }
 
     @Test
-    public void postCreateRequiredFieldsAbsentExceptionTest() throws Exception, CorporateSettlementInstanceRequiredFieldsAbsentException, CorporateSettlementInstanceNotFoundException {
+    public void postCreateRequiredFieldsAbsentExceptionTest() throws Exception, CorporateSettlementInstanceBadRequestException, CorporateSettlementInstanceNotFoundException {
         CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO();
         CorporateSettlementInstanceResponseDTO responseDTO = new CorporateSettlementInstanceResponseDTO(new DataRecord("34", List.of(), List.of()));
         ObjectMapper objectMapper = new ObjectMapper();
         when(corporateSettlementInstanceService.createInstance(any())).thenThrow(
-                new CorporateSettlementInstanceRequiredFieldsAbsentException("TEST REQUIRED FIELDS EXCEPTION MSG")
+                new CorporateSettlementInstanceBadRequestException("TEST REQUIRED FIELDS EXCEPTION MSG")
         );
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/corporate-settlement-instance/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,7 +77,7 @@ public class CorporateSettlementInstanceControllerTest {
     }
 
     @Test
-    public void postCreateNotFoundExceptionTest() throws Exception, CorporateSettlementInstanceRequiredFieldsAbsentException, CorporateSettlementInstanceNotFoundException {
+    public void postCreateNotFoundExceptionTest() throws Exception, CorporateSettlementInstanceBadRequestException, CorporateSettlementInstanceNotFoundException {
         CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO();
         CorporateSettlementInstanceResponseDTO responseDTO = new CorporateSettlementInstanceResponseDTO(new DataRecord("34", List.of(), List.of()));
         ObjectMapper objectMapper = new ObjectMapper();
