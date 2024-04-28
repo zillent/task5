@@ -21,7 +21,8 @@ public class CommonContainerTest {
     ).withCopyFileToContainer(
             MountableFile.forClasspathResource("/db/schema.sql"),
             "/docker-entrypoint-initdb.d/"
-    ).withReuse(true);
+    );
+            //.withReuse(true);
 
     @DynamicPropertySource
     static void setContextProperties (DynamicPropertyRegistry registry) {
