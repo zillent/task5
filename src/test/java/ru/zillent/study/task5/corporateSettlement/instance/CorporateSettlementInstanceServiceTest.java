@@ -3,15 +3,14 @@ package ru.zillent.study.task5.corporateSettlement.instance;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.function.Executable;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.zillent.study.task5.common.model.TppProduct;
 import ru.zillent.study.task5.common.model.TppProductRegisterRepository;
+import ru.zillent.study.task5.common.model.TppProductRepository;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,6 +18,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -128,21 +128,69 @@ public class CorporateSettlementInstanceServiceTest {
                 setter = requestBodyDTO.getClass().getDeclaredMethod("set" + capitalizeFieldName, f.getType());
                 Object oldValue = getter.invoke(requestBodyDTO);
                 setter.invoke(requestBodyDTO, (Object) null);
-                Assertions.assertThrows(
-                        CorporateSettlementInstanceRequiredFieldsAbsentException.class,
-                        () -> instanceService.createInstance(requestBodyDTO),
-                        "Имя обязательного параметра " + f.getName() + " не заполнено."
+                var e = Assertions.assertThrows(
+                        CorporateSettlementInstanceBadRequestException.class,
+                        () -> instanceService.createInstance(requestBodyDTO)
                 );
+                Assertions.assertEquals("Имя обязательного параметра " + f.getName() + " не заполнено.", e.getMessage());
                 setter.invoke(requestBodyDTO, oldValue);
             }
         }
-        Assertions.assertThrows(
-                CorporateSettlementInstanceRequiredFieldsAbsentException.class,
-                () -> instanceService.createInstance(null),
-                "Имя обязательного параметра  не заполнено."
+        var e = Assertions.assertThrows(
+                CorporateSettlementInstanceBadRequestException.class,
+                () -> instanceService.createInstance(null)
         );
+        Assertions.assertEquals("Имя обязательного параметра  не заполнено.", e.getMessage());
     }
 
+    @MockBean
+    TppProductRepository tppProductRepository;
+
+    // Step 2
+    @Test
+    public void RequestBodyInstanceIdEmptyTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
+        CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO(
+                instanceId,
+                productType,
+                productCode,
+                registerType,
+                mdmCode,
+                contractNumber,
+                contractDate,
+                priority,
+                interestRatePenalty,
+                minimalBalance,
+                thresholdAmount,
+                accountingDetails,
+                rateType,
+                taxPercentageRate,
+                technicalOverdraftLimitAmount,
+                contractId,
+                BranchCode,
+                IsoCurrencyCode,
+                urgencyCode,
+                ReferenceCode,
+                additionalProperties,
+                instanceArrangement
+        );
+        requestBodyDTO.setInstanceId(null);
+        instanceService.createInstance(requestBodyDTO);
+        verify(tppProductRepository).save(any());
+        // Step 1.1
+        TppProduct tppProduct = new TppProduct();
+        tppProduct.setId(77L);
+        doReturn(Optional.of(tppProduct)).when(tppProductRepository).findByNumber(any());
+        var e = Assertions.assertThrows(
+                CorporateSettlementInstanceBadRequestException.class,
+                () -> instanceService.createInstance(requestBodyDTO)
+        );
+        Assertions.assertEquals(
+                "Параметр ContractNumber № договора %s уже существует для ЭП с ИД %s.".formatted(
+                        requestBodyDTO.getContractNumber(),
+                        tppProduct.getId()
+                ),
+                e.getMessage());
+    }
 
     @MockBean
     TppProductRegisterRepository tppProductRegisterRepository;

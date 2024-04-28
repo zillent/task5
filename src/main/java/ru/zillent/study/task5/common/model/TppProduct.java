@@ -1,12 +1,18 @@
 package ru.zillent.study.task5.common.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
 @Table(name = "tpp_product")
+@Getter
+@Setter
+@NoArgsConstructor
 public class TppProduct {
     @Id
     @SequenceGenerator(name = "tpp_product_seq", sequenceName = "tpp_product_id_seq", allocationSize = 1)
@@ -48,4 +54,24 @@ public class TppProduct {
     private String reasonClose;
     @Column(name = "state")
     private String state;
+
+    public TppProduct(Long productCodeId, Long clientId, String type, String number, Long priority, Date dateOfConclusion, Date startDateTime, Date endDateTime, Long days, BigDecimal penaltyRate, BigDecimal nso, BigDecimal thresholdAmount, String requisiteType, String interestRateType, BigDecimal taxRate, String reasonClose, String state) {
+        this.productCodeId = productCodeId;
+        this.clientId = clientId;
+        this.type = type;
+        this.number = number;
+        this.priority = priority;
+        this.dateOfConclusion = dateOfConclusion;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.days = days;
+        this.penaltyRate = penaltyRate;
+        this.nso = nso;
+        this.thresholdAmount = thresholdAmount;
+        this.requisiteType = requisiteType;
+        this.interestRateType = interestRateType;
+        this.taxRate = taxRate;
+        this.reasonClose = reasonClose;
+        this.state = state;
+    }
 }
