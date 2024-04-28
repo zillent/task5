@@ -3,6 +3,7 @@ package ru.zillent.study.task5.corporateSettlement.instance;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,16 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import ru.zillent.study.task5.common.model.Account;
-import ru.zillent.study.task5.common.model.AccountRepository;
-import ru.zillent.study.task5.common.model.TppProductRegister;
 import ru.zillent.study.task5.common.model.TppProductRegisterRepository;
-import ru.zillent.study.task5.corporateSettlement.account.CorporateSettlementAccountDTO;
-import ru.zillent.study.task5.corporateSettlement.account.CorporateSettlementAccountService;
-import ru.zillent.study.task5.dict.model.AccountPool;
-import ru.zillent.study.task5.dict.model.AccountPoolRepository;
-import ru.zillent.study.task5.dict.model.TppRefProductRegisterType;
-import ru.zillent.study.task5.dict.model.TppRefProductRegisterTypeRepository;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -27,7 +19,6 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -35,7 +26,7 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CorporateSettlementInstanceServiceTests {
+public class CorporateSettlementInstanceServiceTest {
     private Integer instanceId = 23;
     private String productType = "sdede";
     private String productCode = "sde";
@@ -83,6 +74,19 @@ public class CorporateSettlementInstanceServiceTests {
             "33"
     ));
 
+    List<String> requiredFields = List.of(
+            "productType",
+            "productCode",
+            "registerType",
+            "mdmCode",
+            "contractNumber",
+            "contractDate",
+            "priority",
+            "contractId",
+            "BranchCode",
+            "IsoCurrencyCode",
+            "urgencyCode"
+    );
 
     @Autowired
     CorporateSettlementInstanceService instanceService;
@@ -115,9 +119,28 @@ public class CorporateSettlementInstanceServiceTests {
                 instanceArrangement
         );
 
-        ResponseEntity<CorporateSettlementInstanceResponseDTO> response = instanceService.createInstance(null);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Имя обязательного параметра  не заполнено.", response.getBody());
+        Field[] fields = requestBodyDTO.getClass().getDeclaredFields();
+        for (Field f : fields) {
+            if (requiredFields.contains(f.getName())) {
+                String capitalizeFieldName = f.getName().substring(0, 1).toUpperCase() + f.getName().substring(1);
+                Method getter = requestBodyDTO.getClass().getDeclaredMethod("get" + capitalizeFieldName);
+                Method setter = null;
+                setter = requestBodyDTO.getClass().getDeclaredMethod("set" + capitalizeFieldName, f.getType());
+                Object oldValue = getter.invoke(requestBodyDTO);
+                setter.invoke(requestBodyDTO, (Object) null);
+                Assertions.assertThrows(
+                        CorporateSettlementInstanceRequiredFieldsAbsentException.class,
+                        () -> instanceService.createInstance(requestBodyDTO),
+                        "Имя обязательного параметра " + f.getName() + " не заполнено."
+                );
+                setter.invoke(requestBodyDTO, oldValue);
+            }
+        }
+        Assertions.assertThrows(
+                CorporateSettlementInstanceRequiredFieldsAbsentException.class,
+                () -> instanceService.createInstance(null),
+                "Имя обязательного параметра  не заполнено."
+        );
     }
 
 
