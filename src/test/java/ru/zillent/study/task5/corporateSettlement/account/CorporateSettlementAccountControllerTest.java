@@ -1,6 +1,5 @@
 package ru.zillent.study.task5.corporateSettlement.account;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -18,15 +17,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Date;
-import java.util.UUID;
-
 import static org.mockito.Mockito.doReturn;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class CorporateSettlementAccountControllerTests {
+public class CorporateSettlementAccountControllerTest {
     @Autowired
     MockMvc mockMvc;
     @MockBean

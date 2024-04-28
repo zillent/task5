@@ -1,20 +1,15 @@
 package ru.zillent.study.task5.corporateSettlement.account;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 import ru.zillent.study.task5.common.model.Account;
 import ru.zillent.study.task5.common.model.AccountRepository;
 import ru.zillent.study.task5.common.model.TppProductRegister;
@@ -36,7 +31,7 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CorporateSettlementAccountServiceTests {
+public class CorporateSettlementAccountServiceTest {
     private Integer instanceId = 23;
     private String registryTypeCode = "22";
     private String accountType = "11";
