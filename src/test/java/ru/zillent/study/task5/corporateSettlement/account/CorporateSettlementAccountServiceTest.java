@@ -211,13 +211,13 @@ public class CorporateSettlementAccountServiceTest {
         doReturn(Optional.of(accountPool)).when(accountPoolRepository).findOne(any());
 
         // when not found any accounts in pool
-        doReturn(Optional.empty()).when(accountRepository).findAnyByAccountPoolId(any());
+        doReturn(Optional.empty()).when(accountRepository).findFirstByAccountPoolId(any());
         // then
         response = accountService.createAccount(requestBodyDTO);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         Assertions.assertEquals("Не найдены счета в пуле счетов", response.getBody());
 
-        doReturn(Optional.of(account)).when(accountRepository).findAnyByAccountPoolId(any());
+        doReturn(Optional.of(account)).when(accountRepository).findFirstByAccountPoolId(any());
         doReturn(tppProductRegister).when(tppProductRegisterRepository).save(any());
         // when everything is ok
         tppProductRegister.setId(33L);
