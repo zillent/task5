@@ -1,6 +1,7 @@
 package ru.zillent.study.task5.corporateSettlement.instance;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -352,6 +353,9 @@ public class CorporateSettlementInstanceServiceTest {
         requestBodyDTO.getInstanceArrangement().forEach((item) -> agreementIds.add(item.Number()));
         doReturn(List.of()).when(agreementRepository).findByNumberIn(agreementIds);
         doReturn(agreement).when(agreementRepository).save(any());
+        ObjectMapper objectMapper = new ObjectMapper();
+        System.out.println(objectMapper.writeValueAsString(requestBodyDTO));
+
         var response = instanceService.createInstance(requestBodyDTO);
         verify(agreementRepository).save(any());
         Assertions.assertEquals("98", response.getBody().data.instanceId());
