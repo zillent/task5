@@ -55,7 +55,7 @@ public class CorporateSettlementAccountControllerTest {
                 counter,
                 salesCode
         );
-        CorporateSettlementAccountResponseDTO responseDTO = new CorporateSettlementAccountResponseDTO(new DataRecord("34"));
+        CorporateSettlementAccountResponseDTO responseDTO = new CorporateSettlementAccountResponseDTO(new AccountDataRecord("34"));
         ObjectMapper objectMapper = new ObjectMapper();
         doReturn(new ResponseEntity<>(objectMapper.writeValueAsString(responseDTO), HttpStatus.OK)).when(corporateSettlementAccountService).createAccount(account);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/corporate-settlement-account/create")
