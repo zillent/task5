@@ -15,3 +15,5 @@ password: task5
 to check app is up:
 http://127.0.0.1:8080/actuator/health
 
+
+Screenshots in screenshots folder
