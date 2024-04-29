@@ -1,9 +1,13 @@
 package ru.zillent.study.task5.dict.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tpp_ref_product_class")
+@Getter
+@Setter
 public class TppRefProductClass {
     @Id
     @Column(name = "internal_id")

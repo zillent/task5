@@ -1,12 +1,16 @@
 package ru.zillent.study.task5.dict.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.lang.model.element.Name;
 import java.util.Date;
 
 @Entity
 @Table(name = "tpp_ref_product_register_type")
+@Getter
+@Setter
 public class TppRefProductRegisterType {
     @Id
     @Column(name = "internal_id")

@@ -2,12 +2,14 @@ package ru.zillent.study.task5.common.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "tpp_product_register")
 @Getter
 @Setter
+@NoArgsConstructor
 public class TppProductRegister {
     @Id
     @SequenceGenerator(name = "tpp_product_register_seq", sequenceName = "tpp_product_register_id_seq", allocationSize = 1)

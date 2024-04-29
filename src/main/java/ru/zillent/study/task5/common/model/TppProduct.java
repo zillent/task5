@@ -19,7 +19,7 @@ public class TppProduct {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tpp_product_seq")
     @Column(name = "id")
     private Long id;
-//--	agreement_id BIGINT,
+    //--	agreement_id BIGINT,
     @Column(name = "product_code_id")
     private Long productCodeId;
     @Column(name = "client_id")
@@ -55,8 +55,7 @@ public class TppProduct {
     @Column(name = "state")
     private String state;
 
-    public TppProduct(Long productCodeId, Long clientId, String type, String number, Long priority, Date dateOfConclusion, Date startDateTime, Date endDateTime, Long days, BigDecimal penaltyRate, BigDecimal nso, BigDecimal thresholdAmount, String requisiteType, String interestRateType, BigDecimal taxRate, String reasonClose, String state) {
-        this.productCodeId = productCodeId;
+    public TppProduct(Long clientId, String type, String number, Long priority, Date dateOfConclusion, Date startDateTime, Date endDateTime, Long days, BigDecimal penaltyRate, BigDecimal nso, BigDecimal thresholdAmount, String requisiteType, String interestRateType, BigDecimal taxRate) {
         this.clientId = clientId;
         this.type = type;
         this.number = number;
@@ -71,7 +70,5 @@ public class TppProduct {
         this.requisiteType = requisiteType;
         this.interestRateType = interestRateType;
         this.taxRate = taxRate;
-        this.reasonClose = reasonClose;
-        this.state = state;
     }
 }
