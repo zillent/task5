@@ -82,7 +82,6 @@ public class CorporateSettlementAccountServiceImpl implements CorporateSettlemen
                 requestBodyDTO.getBranchCode(),
                 requestBodyDTO.getCurrencyCode(),
                 requestBodyDTO.getMdmCode(),
-                requestBodyDTO.getPriorityCode(),
                 requestBodyDTO.getRegistryTypeCode()
         );
         Optional<AccountPool> foundAccountPool = accountPoolRepository.findOne(Example.of(accountPool));

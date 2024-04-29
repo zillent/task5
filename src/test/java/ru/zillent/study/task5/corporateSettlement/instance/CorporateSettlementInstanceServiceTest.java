@@ -273,7 +273,6 @@ public class CorporateSettlementInstanceServiceTest {
                 requestBodyDTO.getBranchCode(),
                 requestBodyDTO.getIsoCurrencyCode(),
                 requestBodyDTO.getMdmCode(),
-                String.valueOf(requestBodyDTO.getPriority()),
                 requestBodyDTO.getProductType()
         );
         Account account = new Account();

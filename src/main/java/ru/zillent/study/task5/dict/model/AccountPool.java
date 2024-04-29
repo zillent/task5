@@ -25,11 +25,10 @@ public class AccountPool {
     @Column(name = "registry_type_code")
     private String registryTypeCode;
 
-    public AccountPool(String branchCode, String currencyCode, String mdmCode, String priorityCode, String registryTypeCode) {
+    public AccountPool(String branchCode, String currencyCode, String mdmCode, String registryTypeCode) {
         this.branchCode = branchCode;
         this.currencyCode = currencyCode;
         this.mdmCode = mdmCode;
-        this.priorityCode = priorityCode;
         this.registryTypeCode = registryTypeCode;
     }
 }

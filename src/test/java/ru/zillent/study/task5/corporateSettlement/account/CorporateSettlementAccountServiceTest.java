@@ -185,7 +185,6 @@ public class CorporateSettlementAccountServiceTest {
                 requestBodyDTO.getBranchCode(),
                 requestBodyDTO.getCurrencyCode(),
                 requestBodyDTO.getMdmCode(),
-                requestBodyDTO.getPriorityCode(),
                 requestBodyDTO.getRegistryTypeCode()
         );
         Account account = new Account();
