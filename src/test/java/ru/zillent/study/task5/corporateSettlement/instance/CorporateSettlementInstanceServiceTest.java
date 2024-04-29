@@ -1,11 +1,9 @@
 package ru.zillent.study.task5.corporateSettlement.instance;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -183,7 +181,7 @@ public class CorporateSettlementInstanceServiceTest {
     public void AgreementExistsTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
         requestBodyDTO.setInstanceId(null);
         doReturn(Optional.empty()).when(tppProductRepository).findFirstByNumber(any());
-        doReturn(List.of(agreement)).when(agreementRepository).findByNumberList(any());
+        doReturn(List.of(agreement)).when(agreementRepository).findByNumberIn(any());
         var e = Assertions.assertThrows(
                 CorporateSettlementInstanceBadRequestException.class,
                 () -> instanceService.createInstance(requestBodyDTO)
@@ -207,7 +205,7 @@ public class CorporateSettlementInstanceServiceTest {
     public void ProductNotFoundTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
         requestBodyDTO.setInstanceId(null);
         doReturn(Optional.empty()).when(tppProductRepository).findFirstByNumber(any());
-        doReturn(List.of()).when(agreementRepository).findByNumberList(any());
+        doReturn(List.of()).when(agreementRepository).findByNumberIn(any());
         doReturn(List.of()).when(tppRefProductClassRepository).findByValue(any());
         var e = Assertions.assertThrows(
                 CorporateSettlementInstanceNotFoundException.class,
@@ -247,7 +245,7 @@ public class CorporateSettlementInstanceServiceTest {
     public void RequestBodyStepCreateProductRegistryTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
         requestBodyDTO.setInstanceId(null);
         doReturn(Optional.empty()).when(tppProductRepository).findFirstByNumber(any());
-        doReturn(List.of()).when(agreementRepository).findByNumberList(any());
+        doReturn(List.of()).when(agreementRepository).findByNumberIn(any());
         doReturn(List.of(new TppRefProductClass())).when(tppRefProductClassRepository).findByValue(any());
         doReturn(List.of(new TppRefProductRegisterType())).when(tppRefProductRegisterTypeRepository)
                 .findByProductClassCodeAndAccountType(any(), any());
@@ -326,7 +324,7 @@ public class CorporateSettlementInstanceServiceTest {
         List<String> agreementIds = new ArrayList<>();
         requestBodyDTO.getInstanceArrangement().forEach((item) -> agreementIds.add(item.Number()));
 
-        doReturn(List.of(agreement)).when(agreementRepository).findByNumberList(agreementIds);
+        doReturn(List.of(agreement)).when(agreementRepository).findByNumberIn(agreementIds);
         var e = Assertions.assertThrows(
                 CorporateSettlementInstanceBadRequestException.class,
                 () -> instanceService.createInstance(requestBodyDTO)
@@ -352,7 +350,7 @@ public class CorporateSettlementInstanceServiceTest {
         doReturn(List.of(tppProductRegister)).when(tppProductRegisterRepository).findByProductIdAndType(98L,"TEST TYPE");
         List<String> agreementIds = new ArrayList<>();
         requestBodyDTO.getInstanceArrangement().forEach((item) -> agreementIds.add(item.Number()));
-        doReturn(List.of()).when(agreementRepository).findByNumberList(agreementIds);
+        doReturn(List.of()).when(agreementRepository).findByNumberIn(agreementIds);
         doReturn(agreement).when(agreementRepository).save(any());
         var response = instanceService.createInstance(requestBodyDTO);
         verify(agreementRepository).save(any());

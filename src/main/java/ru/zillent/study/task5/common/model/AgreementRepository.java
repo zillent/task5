@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface AgreementRepository extends JpaRepository<Agreement, Long> {
-    public List<Agreement> findByNumberList(List<String> numbers);
+    public List<Agreement> findByNumberIn(List<String> numbers);
 }

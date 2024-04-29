@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.zillent.study.task5.common.model.*;
-import ru.zillent.study.task5.corporateSettlement.account.AccountDataRecord;
 import ru.zillent.study.task5.corporateSettlement.account.CorporateSettlementAccountDTO;
 import ru.zillent.study.task5.corporateSettlement.account.CorporateSettlementAccountResponseDTO;
 import ru.zillent.study.task5.corporateSettlement.account.CorporateSettlementAccountService;
@@ -83,7 +82,7 @@ public class CorporateSettlementInstanceServiceImpl implements CorporateSettleme
             );
             List<String> arrangementNumbers = new ArrayList<>();
             requestBodyDTO.getInstanceArrangement().forEach((item) -> arrangementNumbers.add(item.Number()));
-            List<Agreement> agreementList = agreementRepository.findByNumberList(arrangementNumbers);
+            List<Agreement> agreementList = agreementRepository.findByNumberIn(arrangementNumbers);
             if (!agreementList.isEmpty())
                 throw new CorporateSettlementInstanceBadRequestException(
                         "Параметр № Дополнительного соглашения (сделки) Number %s уже существует для ЭП с ИД  %s."
@@ -161,7 +160,7 @@ public class CorporateSettlementInstanceServiceImpl implements CorporateSettleme
                 );
             instanceId = String.valueOf(foundTppProduct.get().getId());
             requestBodyDTO.getInstanceArrangement().forEach((item) -> agreementIds.add(item.Number()));
-            List<Agreement> agreementList = agreementRepository.findByNumberList(agreementIds);
+            List<Agreement> agreementList = agreementRepository.findByNumberIn(agreementIds);
             if (!agreementList.isEmpty())
                 throw new CorporateSettlementInstanceBadRequestException(
                         "Параметр № Дополнительного соглашения (сделки) Number %s уже существует для ЭП с ИД %s."
