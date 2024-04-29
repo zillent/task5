@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface TppRefProductRegisterTypeRepository extends JpaRepository<TppRefProductRegisterType, Long> {
     public List<TppRefProductRegisterType> findByValue(String value);
+    public List<TppRefProductRegisterType> findByProductClassCodeAndAccountType(String productClassCode, String AccountType);
 }
