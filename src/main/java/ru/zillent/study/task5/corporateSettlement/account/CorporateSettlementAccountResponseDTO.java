@@ -1,12 +1,11 @@
 package ru.zillent.study.task5.corporateSettlement.account;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class CorporateSettlementAccountResponseDTO {
-    DataRecord data;
+    AccountDataRecord data;
 }
 
-record DataRecord(String accountId) {}

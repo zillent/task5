@@ -101,7 +101,7 @@ public class CorporateSettlementAccountServiceImpl implements CorporateSettlemen
         );
         TppProductRegister savedProductRegister = tppProductRegisterRepository.save(tppProductRegister);
         CorporateSettlementAccountResponseDTO responseDTO = new CorporateSettlementAccountResponseDTO(
-                new DataRecord(String.valueOf(savedProductRegister.getId()))
+                new AccountDataRecord(String.valueOf(savedProductRegister.getId()))
         );
         ObjectMapper objectMapper = new ObjectMapper();
         String responseBody = objectMapper.writeValueAsString(responseDTO);
