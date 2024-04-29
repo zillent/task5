@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    Optional<Account> findAnyByAccountPoolId(Long accountPoolId);
+    Optional<Account> findFirstByAccountPoolId(Long accountPoolId);
 }

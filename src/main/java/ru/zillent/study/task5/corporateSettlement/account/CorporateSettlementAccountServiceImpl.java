@@ -88,7 +88,7 @@ public class CorporateSettlementAccountServiceImpl implements CorporateSettlemen
         Optional<AccountPool> foundAccountPool = accountPoolRepository.findOne(Example.of(accountPool));
         if (foundAccountPool.isEmpty())
             return new ResponseEntity<>(NOT_FOUND_ACCOUNT_POOL, HttpStatus.NOT_FOUND);
-        Optional<Account> foundAccount = accountRepository.findAnyByAccountPoolId(foundAccountPool.get().getId());
+        Optional<Account> foundAccount = accountRepository.findFirstByAccountPoolId(foundAccountPool.get().getId());
         if (foundAccount.isEmpty())
             return new ResponseEntity<>(NOT_FOUND_ACCOUNTS_IN_POOL, HttpStatus.NOT_FOUND);
         TppProductRegister tppProductRegister = new TppProductRegister(
