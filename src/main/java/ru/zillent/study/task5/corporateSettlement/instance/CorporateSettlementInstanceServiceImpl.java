@@ -45,7 +45,7 @@ public class CorporateSettlementInstanceServiceImpl implements CorporateSettleme
         if (requestBodyDTO.getUrgencyCode() == null)
             throw new CorporateSettlementInstanceBadRequestException(BAD_REQUEST_MESSAGE.formatted("urgencyCode"));
         if (requestBodyDTO.getInstanceId() == null) {
-            tppProductRepository.findByNumber(requestBodyDTO.getContractNumber()).ifPresent(
+            tppProductRepository.findFirstByNumber(requestBodyDTO.getContractNumber()).ifPresent(
                     foundProduct -> {
                         throw new CorporateSettlementInstanceBadRequestException(
                                 "Параметр ContractNumber № договора %s уже существует для ЭП с ИД %s.".formatted(

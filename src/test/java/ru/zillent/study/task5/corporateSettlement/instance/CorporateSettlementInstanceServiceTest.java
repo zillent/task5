@@ -179,7 +179,7 @@ public class CorporateSettlementInstanceServiceTest {
         // Step 1.1
         TppProduct tppProduct = new TppProduct();
         tppProduct.setId(77L);
-        doReturn(Optional.of(tppProduct)).when(tppProductRepository).findByNumber(any());
+        doReturn(Optional.of(tppProduct)).when(tppProductRepository).findFirstByNumber(any());
         var e = Assertions.assertThrows(
                 CorporateSettlementInstanceBadRequestException.class,
                 () -> instanceService.createInstance(requestBodyDTO)

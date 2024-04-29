@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface TppProductRepository extends JpaRepository<TppProduct, Long> {
-    public Optional<TppProduct> findByNumber(String number);
+    public Optional<TppProduct> findFirstByNumber(String number);
 }
