@@ -1,28 +1,30 @@
 package ru.zillent.study.task5.corporateSettlement.instance;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
-import ru.zillent.study.task5.common.model.TppProduct;
-import ru.zillent.study.task5.common.model.TppProductRegisterRepository;
-import ru.zillent.study.task5.common.model.TppProductRepository;
+import ru.zillent.study.task5.common.model.*;
+import ru.zillent.study.task5.dict.model.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -87,14 +89,15 @@ public class CorporateSettlementInstanceServiceTest {
             "IsoCurrencyCode",
             "urgencyCode"
     );
+    CorporateSettlementInstanceDTO requestBodyDTO = null;
+    Agreement agreement = new Agreement();
 
     @Autowired
     CorporateSettlementInstanceService instanceService;
 
-    // Step 1
-    @Test
-    public void serviceCreateNotAllNeededFieldsFilledShouldReturnBadRequestTest() throws JsonProcessingException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO(
+    @Before
+    public void initData() {
+        requestBodyDTO = new CorporateSettlementInstanceDTO(
                 instanceId,
                 productType,
                 productCode,
@@ -118,7 +121,13 @@ public class CorporateSettlementInstanceServiceTest {
                 additionalProperties,
                 instanceArrangement
         );
+        agreement.setId(78L);
+        agreement.setNumber("22");
+    }
 
+    // Step 1
+    @Test
+    public void serviceCreateNotAllNeededFieldsFilledShouldReturnBadRequestTest() throws JsonProcessingException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         Field[] fields = requestBodyDTO.getClass().getDeclaredFields();
         for (Field f : fields) {
             if (requiredFields.contains(f.getName())) {
@@ -146,37 +155,13 @@ public class CorporateSettlementInstanceServiceTest {
     @MockBean
     TppProductRepository tppProductRepository;
 
-    // Step 2
+    @MockBean
+    AgreementRepository agreementRepository;
+
+    // Step 1.1
     @Test
-    public void RequestBodyInstanceIdEmptyTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
-        CorporateSettlementInstanceDTO requestBodyDTO = new CorporateSettlementInstanceDTO(
-                instanceId,
-                productType,
-                productCode,
-                registerType,
-                mdmCode,
-                contractNumber,
-                contractDate,
-                priority,
-                interestRatePenalty,
-                minimalBalance,
-                thresholdAmount,
-                accountingDetails,
-                rateType,
-                taxPercentageRate,
-                technicalOverdraftLimitAmount,
-                contractId,
-                BranchCode,
-                IsoCurrencyCode,
-                urgencyCode,
-                ReferenceCode,
-                additionalProperties,
-                instanceArrangement
-        );
+    public void ContractNumberExistsTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
         requestBodyDTO.setInstanceId(null);
-        instanceService.createInstance(requestBodyDTO);
-        verify(tppProductRepository).save(any());
-        // Step 1.1
         TppProduct tppProduct = new TppProduct();
         tppProduct.setId(77L);
         doReturn(Optional.of(tppProduct)).when(tppProductRepository).findFirstByNumber(any());
@@ -185,153 +170,196 @@ public class CorporateSettlementInstanceServiceTest {
                 () -> instanceService.createInstance(requestBodyDTO)
         );
         Assertions.assertEquals(
-                "Параметр ContractNumber № договора %s уже существует для ЭП с ИД %s.".formatted(
-                        requestBodyDTO.getContractNumber(),
-                        tppProduct.getId()
-                ),
+                "Параметр ContractNumber № договора %s уже существует для ЭП с ИД %s."
+                        .formatted(
+                                requestBodyDTO.getContractNumber(),
+                                tppProduct.getId()
+                        ),
+                e.getMessage());
+    }
+
+    // Step 1.2
+    @Test
+    public void AgreementExistsTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
+        requestBodyDTO.setInstanceId(null);
+        doReturn(Optional.empty()).when(tppProductRepository).findFirstByNumber(any());
+        doReturn(List.of(agreement)).when(agreementRepository).findByNumberList(any());
+        var e = Assertions.assertThrows(
+                CorporateSettlementInstanceBadRequestException.class,
+                () -> instanceService.createInstance(requestBodyDTO)
+        );
+        Assertions.assertEquals(
+                "Параметр № Дополнительного соглашения (сделки) Number %s уже существует для ЭП с ИД  %s."
+                        .formatted(
+                                agreement.getNumber(),
+                                agreement.getId()
+                        ),
                 e.getMessage());
     }
 
     @MockBean
-    TppProductRegisterRepository tppProductRegisterRepository;
+    TppRefProductClassRepository tppRefProductClassRepository;
+    @MockBean
+    TppRefProductRegisterTypeRepository tppRefProductRegisterTypeRepository;
 
-    // Step 2
-//    @Test
-//    public void accountCreateDuplicateRecordsTest() throws JsonProcessingException {
-//        TppProductRegister tppProductRegister = new TppProductRegister(
-//                (long) instanceId,
-//                registryTypeCode,
-//                100L,
-//                currencyCode,
-//                "OPEN",
-//                "377449"
-//        );
-//        CorporateSettlementAccountDTO account = new CorporateSettlementAccountDTO(
-//                instanceId,
-//                registryTypeCode,
-//                accountType,
-//                currencyCode,
-//                branchCode,
-//                priorityCode,
-//                mdmCode,
-//                clientCode,
-//                trainRegion,
-//                counter,
-//                salesCode
-//        );
-//        doReturn(List.of(tppProductRegister)).when(tppProductRegisterRepository).findByProductIdAndType(any(), any());
-////        ObjectMapper objectMapper = new ObjectMapper();
-////        System.out.println(objectMapper.writeValueAsString(account));
-//        ResponseEntity<String> response = accountService.createAccount(account);
-//        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-//        Assertions.assertEquals(
-//                "Параметр registryTypeCode тип регистра %s уже существует для ЭП с ИД %s.".formatted(registryTypeCode, instanceId),
-//                response.getBody()
-//        );
-//        doReturn(List.of()).when(tppProductRegisterRepository).findByProductIdAndType(any(), any());
-//        response = accountService.createAccount(account);
-//        Assertions.assertNotEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-//        Assertions.assertNotEquals(
-//                "Параметр registryTypeCode тип регистра %s уже существует для ЭП с ИД %s.".formatted(registryTypeCode, instanceId),
-//                response.getBody()
-//        );
-//    }
-//
-//    @MockBean
-//    TppRefProductRegisterTypeRepository tppRefProductRegisterTypeRepository;
-//
-//    // Step 3
-//    @Test
-//    public void accountCreateNotFoundRegisterTypeCodeTest() throws JsonProcessingException {
-//        CorporateSettlementAccountDTO account = new CorporateSettlementAccountDTO(
-//                instanceId,
-//                registryTypeCode,
-//                accountType,
-//                currencyCode,
-//                branchCode,
-//                priorityCode,
-//                mdmCode,
-//                clientCode,
-//                trainRegion,
-//                counter,
-//                salesCode
-//        );
-//        doReturn(List.of()).when(tppRefProductRegisterTypeRepository).findByValue(any());
-//        ResponseEntity<String> response = accountService.createAccount(account);
-//        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        Assertions.assertEquals(
-//                "Код Продукта %s не найдено в Каталоге продуктов public.tpp_ref_product_register_type для данного типа Регистра".formatted(registryTypeCode),
-//                response.getBody()
-//        );
-//    }
-//
-//    @MockBean
-//    AccountPoolRepository accountPoolRepository;
-//
-//    @MockBean
-//    AccountRepository accountRepository;
-//
-//    //Step 4
-//    @Test
-//    public void accountCreateAllOkTest() throws JsonProcessingException {
-//        CorporateSettlementAccountDTO requestBodyDTO = new CorporateSettlementAccountDTO(
-//                instanceId,
-//                registryTypeCode,
-//                accountType,
-//                currencyCode,
-//                branchCode,
-//                priorityCode,
-//                mdmCode,
-//                clientCode,
-//                trainRegion,
-//                counter,
-//                salesCode
-//        );
-//        AccountPool accountPool = new AccountPool(
-//                requestBodyDTO.getBranchCode(),
-//                requestBodyDTO.getCurrencyCode(),
-//                requestBodyDTO.getMdmCode(),
-//                requestBodyDTO.getPriorityCode(),
-//                requestBodyDTO.getRegistryTypeCode()
-//        );
-//        Account account = new Account();
-//        account.setId(23L);
-//        account.setAccountNumber("333");
-//        TppProductRegister tppProductRegister = new TppProductRegister(
-//                Long.valueOf(requestBodyDTO.getInstanceId()),
-//                requestBodyDTO.getRegistryTypeCode(),
-//                account.getId(),
-//                requestBodyDTO.getCurrencyCode(),
-//                "OPEN",
-//                account.getAccountNumber()
-//        );
-//        doReturn(List.of(new TppRefProductRegisterType())).when(tppRefProductRegisterTypeRepository).findByValue(any());
-//
-//        // when not found Account pool
-//        doReturn(Optional.empty()).when(accountPoolRepository).findOne(any());
-//        // then
-//        ResponseEntity<String> response = accountService.createAccount(requestBodyDTO);
-//        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        Assertions.assertEquals("Не найден подходящий пул счетов", response.getBody());
-//
-//        doReturn(Optional.of(accountPool)).when(accountPoolRepository).findOne(any());
-//
-//        // when not found any accounts in pool
-//        doReturn(Optional.empty()).when(accountRepository).findAnyByAccountPoolId(any());
-//        // then
-//        response = accountService.createAccount(requestBodyDTO);
-//        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-//        Assertions.assertEquals("Не найдены счета в пуле счетов", response.getBody());
-//
-//        doReturn(Optional.of(account)).when(accountRepository).findAnyByAccountPoolId(any());
-//        doReturn(tppProductRegister).when(tppProductRegisterRepository).save(any());
-//        // when everything is ok
-//        tppProductRegister.setId(33L);
-//        response = accountService.createAccount(requestBodyDTO);
-//        // then
-//        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-//        Assertions.assertEquals("{\"data\":{\"accountId\":\"33\"}}", response.getBody());
-//        verify(tppProductRegisterRepository).save(any());
-//    }
+    // Step 1.3
+    @Test
+    public void ProductNotFoundTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
+        requestBodyDTO.setInstanceId(null);
+        doReturn(Optional.empty()).when(tppProductRepository).findFirstByNumber(any());
+        doReturn(List.of()).when(agreementRepository).findByNumberList(any());
+        doReturn(List.of()).when(tppRefProductClassRepository).findByValue(any());
+        var e = Assertions.assertThrows(
+                CorporateSettlementInstanceNotFoundException.class,
+                () -> instanceService.createInstance(requestBodyDTO)
+        );
+        Assertions.assertEquals(
+                "КодПродукта %s не найдено в Каталоге продуктов tpp_ref_product_class"
+                        .formatted(
+                                requestBodyDTO.getProductCode()
+                        ),
+                e.getMessage());
+
+        doReturn(List.of(new TppRefProductClass())).when(tppRefProductClassRepository).findByValue(any());
+        doReturn(List.of()).when(tppRefProductRegisterTypeRepository).findByValue(any());
+        e = Assertions.assertThrows(
+                CorporateSettlementInstanceNotFoundException.class,
+                () -> instanceService.createInstance(requestBodyDTO)
+        );
+        Assertions.assertEquals(
+                "КодПродукта %s не найдено в Каталоге продуктов tpp_ref_product_class"
+                        .formatted(
+                                requestBodyDTO.getProductCode()
+                        ),
+                e.getMessage());
+    }
+
+
+    @MockBean
+    TppProductRegisterRepository tppProductRegisterRepository;
+    @MockBean
+    AccountPoolRepository accountPoolRepository;
+    @MockBean
+    AccountRepository accountRepository;
+
+    // Step 1.4 - 1.5
+    @Test
+    public void RequestBodyStepCreateProductRegistryTest() throws CorporateSettlementInstanceNotFoundException, CorporateSettlementInstanceBadRequestException, JsonProcessingException {
+        requestBodyDTO.setInstanceId(null);
+        doReturn(Optional.empty()).when(tppProductRepository).findFirstByNumber(any());
+        doReturn(List.of()).when(agreementRepository).findByNumberList(any());
+        doReturn(List.of(new TppRefProductClass())).when(tppRefProductClassRepository).findByValue(any());
+        doReturn(List.of(new TppRefProductRegisterType())).when(tppRefProductRegisterTypeRepository)
+                .findByProductClassCodeAndAccountType(any(), any());
+        TppProduct tppProduct = new TppProduct(
+                Long.valueOf(requestBodyDTO.getMdmCode()),
+                requestBodyDTO.getProductType(),
+                requestBodyDTO.getContractNumber(),
+                Long.valueOf(requestBodyDTO.getPriority()),
+                requestBodyDTO.getContractDate(),
+                requestBodyDTO.getContractDate(),
+                null,
+                null,
+                BigDecimal.valueOf(requestBodyDTO.getInterestRatePenalty()),
+                null,
+                BigDecimal.valueOf(requestBodyDTO.getThresholdAmount()),
+                requestBodyDTO.getAccountingDetails(),
+                requestBodyDTO.getRateType(),
+                BigDecimal.valueOf(requestBodyDTO.getTaxPercentageRate())
+        );
+        tppProduct.setId(98L);
+        doReturn(tppProduct).when(tppProductRepository).save(any());
+
+        AccountPool accountPool = new AccountPool(
+                requestBodyDTO.getBranchCode(),
+                requestBodyDTO.getIsoCurrencyCode(),
+                requestBodyDTO.getMdmCode(),
+                String.valueOf(requestBodyDTO.getPriority()),
+                requestBodyDTO.getProductType()
+        );
+        Account account = new Account();
+        account.setId(23L);
+        account.setAccountNumber("333");
+        TppProductRegister tppProductRegister = new TppProductRegister(
+                tppProduct.getId(),
+                requestBodyDTO.getProductCode(),
+                account.getId(),
+                requestBodyDTO.getIsoCurrencyCode(),
+                "OPEN",
+                account.getAccountNumber()
+        );
+        tppProductRegister.setId(33L);
+
+        doReturn(List.of(new TppRefProductRegisterType())).when(tppRefProductRegisterTypeRepository).findByValue(any());
+        doReturn(Optional.of(accountPool)).when(accountPoolRepository).findOne(any());
+        doReturn(Optional.of(account)).when(accountRepository).findFirstByAccountPoolId(any());
+        doReturn(tppProductRegister).when(tppProductRegisterRepository).save(any());
+
+        var response = instanceService.createInstance(requestBodyDTO);
+        verify(tppProductRepository).save(any());
+        verify(tppProductRegisterRepository).save(any());
+        Assertions.assertEquals("98", response.getBody().data.instanceId());
+        Assertions.assertEquals(List.of("33"), response.getBody().data.registerId());
+        //Assertions.assertEquals(List.of("33"), response.getBody().data.supplementaryAgreementId());
+    }
+
+    // Step 2.1
+    @Test
+    public void ProductWithProductIdNotFound() {
+        doReturn(Optional.empty()).when(tppProductRepository).findById(Long.valueOf(requestBodyDTO.getInstanceId()));
+        var e = Assertions.assertThrows(
+                CorporateSettlementInstanceNotFoundException.class,
+                () -> instanceService.createInstance(requestBodyDTO)
+        );
+        Assertions.assertEquals(
+                "Экземпляр продукта с параметром instanceId %s не найден."
+                        .formatted(
+                                requestBodyDTO.getInstanceId()
+                        ),
+                e.getMessage());
+    }
+
+    // Step 2.1
+    @Test
+    public void DuplicateAgreements() {
+        doReturn(Optional.of(new TppProduct())).when(tppProductRepository).findById(Long.valueOf(requestBodyDTO.getInstanceId()));
+        List<String> agreementIds = new ArrayList<>();
+        requestBodyDTO.getInstanceArrangement().forEach((item) -> agreementIds.add(item.Number()));
+
+        doReturn(List.of(agreement)).when(agreementRepository).findByNumberList(agreementIds);
+        var e = Assertions.assertThrows(
+                CorporateSettlementInstanceBadRequestException.class,
+                () -> instanceService.createInstance(requestBodyDTO)
+        );
+        Assertions.assertEquals(
+                "Параметр № Дополнительного соглашения (сделки) Number %s уже существует для ЭП с ИД %s."
+                        .formatted(
+                                agreement.getNumber(),
+                                agreement.getId()
+                        ),
+                e.getMessage());
+    }
+
+    // Step 8
+    @Test
+    public void AllIsOkWithInstanceId() throws JsonProcessingException {
+        TppProduct tppProduct = new TppProduct();
+        tppProduct.setId(98L);
+        tppProduct.setType("TEST TYPE");
+        doReturn(Optional.of(tppProduct)).when(tppProductRepository).findById(Long.valueOf(requestBodyDTO.getInstanceId()));
+        TppProductRegister tppProductRegister = new TppProductRegister();
+        tppProductRegister.setId(367L);
+        doReturn(List.of(tppProductRegister)).when(tppProductRegisterRepository).findByProductIdAndType(98L,"TEST TYPE");
+        List<String> agreementIds = new ArrayList<>();
+        requestBodyDTO.getInstanceArrangement().forEach((item) -> agreementIds.add(item.Number()));
+        doReturn(List.of()).when(agreementRepository).findByNumberList(agreementIds);
+        doReturn(agreement).when(agreementRepository).save(any());
+        var response = instanceService.createInstance(requestBodyDTO);
+        verify(agreementRepository).save(any());
+        Assertions.assertEquals("98", response.getBody().data.instanceId());
+        Assertions.assertEquals(List.of("367"), response.getBody().data.registerId());
+        Assertions.assertEquals(List.of("22"), response.getBody().data.supplementaryAgreementId());
+
+    }
 
 }
